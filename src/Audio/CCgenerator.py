@@ -1,15 +1,10 @@
 import whisper
 import string
 import os
+from src.Helpers.Helpers import clean_filename
 from pytube import YouTube
 
 delete_audio = False
-
-def clean_filename(title):
-    title = title.lower()
-    title = title.translate(str.maketrans("", "", string.punctuation))
-    title = title.replace(" ", "_")
-    return title
 
 def download_audio(url):
     yt = YouTube(url)
@@ -28,15 +23,21 @@ def delete_audio_file(audio_file_path):
         return
     os.remove(audio_file_path)
 
+def delete_audio_files():
+    for file in os.listdir("audio_files"):
+        os.remove(f"audio_files/{file}")
+
 
 def generate_CC(url):
     model = whisper.load_model("base")
     result = model.transcribe(download_audio(url))
-    print(result["text"])
-    
-    return result["text"]
+    print(result)
+    try:
+        delete_audio_file(download_audio(url))
+    except:
+        delete_audio_files()
+        print("Audio file not found")
 
-    
-
+    return result
 
 generate_CC("https://www.youtube.com/watch?v=i0mNnYP6w2w")
